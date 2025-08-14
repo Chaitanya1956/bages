@@ -15,4 +15,5 @@ A machine learning model for stock analysis. Currently in developement.
  - Wait a few seconds for the model to train.
  - The results will be shown in the terminal itself after multiple seconds of training.
 
+[Visit the demo](https://colab.research.google.com/drive/1xpMErmFwnoKFlWPugvbqzFJs0a6dhQsa?usp=sharing)
  
