@@ -5,7 +5,7 @@ A machine learning model for stock analysis. Currently in developement.
 
 **STEPS TO RUN**
 
-~ - Open the demo link given~
+~~ - Open the demo link given ~~
  - Login to google (important) 
  - Click on the play button on the left side of the code or press the key combinations ` ctrl + enter` 
  - Scroll till the bottom of the code until you see the terminal 
