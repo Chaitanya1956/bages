@@ -19,5 +19,5 @@ A machine learning model for stock analysis. Currently in developement.
 
 ***NEW VERSION***
 **DIRECT USE FROM WEBSITE**
-[Click Here]()
+[Click Here](https://bagesai.me)
  
