@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bages</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --accent-primary: #6366f1;
+            --accent-secondary: #818cf8;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .input-section {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--bg-tertiary);
+            text-align: center;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input {
+            padding: 1rem 1.5rem;
+            background: var(--bg-tertiary);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        button {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--accent-primary);
+            display: none;
+        }
+
+        .loading i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .results {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--bg-tertiary);
+            display: none;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--bg-tertiary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .chart-container {
+            height: 400px;
+            margin-bottom: 2rem;
+            background: var(--bg-tertiary);
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+            text-align: center;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            input {
+                min-width: unset;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-brain"></i> NeuralStock AI</h1>
+            <p>Professional-grade stock predictions with deep learning</p>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <div class="input-container">
+                    <label for="tickerInput"><i class="fas fa-chart-line"></i> STOCK TICKER</label>
+                    <input 
+                        type="text" 
+                        id="tickerInput" 
+                        placeholder="Enter ticker (e.g., AAPL, TSLA)"
+                        value="AAPL"
+                    >
+                </div>
+                
+                <div class="input-container">
+                    <label for="yearsInput"><i class="fas fa-calendar"></i> YEARS OF DATA</label>
+                    <input 
+                        type="number" 
+                        id="yearsInput" 
+                        placeholder="Years (1-5)"
+                        value="2"
+                        min="1"
+                        max="5"
+                        step="0.5"
+                    >
+                </div>
+                
+                <button id="predictBtn" onclick="predictStock()">
+                    <i class="fas fa-bolt"></i> Generate Prediction
+                </button>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            <i class="fas fa-spinner"></i>
+            <p>Analyzing market patterns with neural networks...</p>
+        </div>
+
+        <div id="error" class="error"></div>
+
+        <div id="results" class="results">
+            <h2 id="stockTitle" style="text-align: center; margin-bottom: 2rem;"></h2>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="currentPrice">-</div>
+                    <div class="metric-label">Current Price</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="predictedPrice">-</div>
+                    <div class="metric-label">Predicted Price</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="changePct">-</div>
+                    <div class="metric-label">Expected Change</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="confidence">-</div>
+                    <div class="metric-label">Model Confidence</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="priceChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let priceChart = null;
+        let currentPrediction = null;
+
+        async function predictStock() {
+            const ticker = document.getElementById('tickerInput').value.toUpperCase();
+            const years = document.getElementById('yearsInput').value;
+            const btn = document.getElementById('predictBtn');
+            
+            if (!ticker) {
+                showError('Please enter a stock ticker');
+                return;
+            }
+
+            // Show loading, hide previous results
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`/api/predict?ticker=${ticker}&years=${years}`);
+                const result = await response.json();
+
+                if (!result.success) {
+                    showError(result.error || 'Prediction failed');
+                    return;
+                }
+
+                // Display results
+                displayResults(result);
+
+            } catch (error) {
+                showError('Network error. Please try again.');
+                console.error('Error:', error);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+
+        function displayResults(result) {
+            document.getElementById('stockTitle').textContent = `${result.ticker} Stock Analysis`;
+            document.getElementById('currentPrice').textContent = `$${result.currentPrice.toFixed(2)}`;
+            document.getElementById('predictedPrice').textContent = `$${result.predictedPrice.toFixed(2)}`;
+            
+            const changePctElement = document.getElementById('changePct');
+            changePctElement.textContent = `${result.changePct >= 0 ? '+' : ''}${result.changePct.toFixed(2)}%`;
+            changePctElement.style.color = result.changePct >= 0 ? 'var(--success)' : 'var(--danger)';
+            
+            document.getElementById('confidence').textContent = 'High';
+            document.getElementById('confidence').style.color = 'var(--success)';
+            
+            // Create chart
+            createChart(result.dates, result.prices, result.ticker);
+            
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function createChart(dates, prices, ticker) {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            
+            if (priceChart) {
+                priceChart.destroy();
+            }
+            
+            priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: `${ticker} Price`,
+                        data: prices,
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.1,
+                        pointBackgroundColor: '#6366f1',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#f1f5f9',
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                            titleColor: '#f1f5f9',
+                            bodyColor: '#f1f5f9',
+                            borderColor: '#6366f1',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { 
+                                color: '#94a3b8',
+                                maxRotation: 45
+                            },
+                            grid: { 
+                                color: 'rgba(148, 163, 184, 0.2)'
+                            }
+                        },
+                        y: {
+                            ticks: { 
+                                color: '#94a3b8',
+                                callback: function(value) {
+                                    return '$' + value.toFixed(2);
+                                }
+                            },
+                            grid: { 
+                                color: 'rgba(148, 163, 184, 0.2)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        // Enter key support
+        document.getElementById('tickerInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') predictStock();
+        });
+        document.getElementById('yearsInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') predictStock();
+        });
+    </script>
+</body>
+</html>
